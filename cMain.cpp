@@ -58,12 +58,46 @@ void cMain::OnRightClicked(wxMouseEvent& evt)
 	
 }
 
+void cMain::OnButtonCheck(wxButton* button)
+{
+	int x = (button->GetId() - 10000) % nFieldWidth;
+	int y = (button->GetId() - 10000) / nFieldHeight;
+
+	button->Enable(false);
+
+	int mine_neighbour = 0;
+	for (int i = -1; i < 2; i++)
+		for (int j = -1; j < 2; j++)
+		{
+			if (x + i >= 0 && x + i < nFieldWidth && y + j >= 0 && y + j < nFieldHeight)
+			{
+				if (nMineField[(y + j) * nFieldWidth + (x + i)] == -1)
+					mine_neighbour++;
+			}
+		}
+	if (mine_neighbour != 0)
+	{
+		button->SetLabel(std::to_string(mine_neighbour));
+	}
+	else
+	{
+		for (int i = -1; i < 2; i++)
+			for (int j = -1; j < 2; j++)
+			{
+				if (x + i >= 0 && x + i < nFieldWidth && y + j >= 0 && y + j < nFieldHeight && btn[(y + j) * nFieldWidth + (x + i)]->IsEnabled())
+				{
+					cMain::OnButtonCheck(btn[(y + j) * nFieldWidth + (x + i)]);
+				}
+			}
+	}
+}
+
 void cMain::OnButtonClicked(wxCommandEvent& evt)
 {
 	int x = (evt.GetId() - 10000) % nFieldWidth;
 	int y = (evt.GetId() - 10000) / nFieldHeight;
 
-	if (bFirstClick) 
+	if (bFirstClick)
 	{
 		int mines = minesCount;
 		while (mines)
@@ -95,6 +129,7 @@ void cMain::OnButtonClicked(wxCommandEvent& evt)
 				nMarker[y * nFieldWidth + x] = 0;
 				btn[y * nFieldWidth + x]->SetLabel("");
 				btn[y * nFieldWidth + x]->Enable(true);
+				markers_count = minesCount;
 			}
 
 
@@ -103,7 +138,7 @@ void cMain::OnButtonClicked(wxCommandEvent& evt)
 	{
 		int mine_neighbour = 0;
 		for (int i = -1; i < 2; i++)
-			for(int j = -1; j < 2; j++)
+			for (int j = -1; j < 2; j++)
 			{
 				if (x + i >= 0 && x + i < nFieldWidth && y + j >= 0 && y + j < nFieldHeight)
 				{
@@ -111,11 +146,23 @@ void cMain::OnButtonClicked(wxCommandEvent& evt)
 						mine_neighbour++;
 				}
 			}
-		if (mine_neighbour)
+		if (mine_neighbour != 0)
 		{
 			btn[y * nFieldWidth + x]->SetLabel(std::to_string(mine_neighbour));
+		}
+		else
+		{
+			for(int i = -1; i <2; i++)
+				for (int j = -1; j < 2; j++)
+				{
+					if (x + i >= 0 && x + i < nFieldWidth && y + j >= 0 && y + j < nFieldHeight)
+					{
+					cMain::OnButtonCheck(btn[(y + j) * nFieldWidth + (x + i)]);
+					}
+				}
 		}
 	}
 
 	evt.Skip();
+	
 }

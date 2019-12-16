@@ -8,15 +8,16 @@ public:
 	~cMain();
 
 public:
-	int nFieldWidth = 20;
-	int nFieldHeight = 20;
+	int nFieldWidth = 15;
+	int nFieldHeight = 15;
 	wxButton** btn;
 	int *nMineField = nullptr;
 	int *nMarker = nullptr;
 	bool bFirstClick = true;
 	int minesCount = 30;
-	int markers_count = 30;
+	int markers_count = minesCount;
 
+	void OnButtonCheck(wxButton* btn);
 	void OnButtonClicked(wxCommandEvent& evt);
 	void OnRightClicked(wxMouseEvent& evt);
 
